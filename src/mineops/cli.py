@@ -7,9 +7,17 @@ from rich.console import Console
 
 from mineops.config import load_settings
 
+from mineops.commands.gravestones.cli import app as gravestones_app
+
+
 app = typer.Typer(
     help="MineOps command-line tools.",
     invoke_without_command=True,
+)
+
+app.add_typer(
+    gravestones_app,
+    name="gravestones",
 )
 
 console = Console()
