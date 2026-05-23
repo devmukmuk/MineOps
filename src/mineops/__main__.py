@@ -1,7 +1,13 @@
-
+"""Run the MineOps command-line interface."""
 
 from mineops.cli import app
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Run MineOps."""
+
     app()
+
+
+if __name__ == "__main__":
+    main()
