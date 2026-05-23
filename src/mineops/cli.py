@@ -52,3 +52,7 @@ def about() -> None:
     console.print(f"Metadata Root: {settings.metadata_root}")
     console.print(f"Backups Root: {settings.backups_root}")
     console.print(f"Logs Root: {settings.logs_root}")
+    console.print()
+    
+    console.print("[bold]Minecraft[/bold]")
+    console.print(f"Server Logs Root: {settings.minecraft.server_logs_root}")
