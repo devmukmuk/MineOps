@@ -23,6 +23,12 @@ class SettingsMetadata:
 
 
 @dataclass(frozen=True)
+class MinecraftSettings:
+    """Minecraft-specific settings."""
+
+    server_logs_root: Path
+
+@dataclass(frozen=True)
 class Settings:
     """MineOps runtime settings."""
 
@@ -31,6 +37,7 @@ class Settings:
     metadata_root: Path
     backups_root: Path
     logs_root: Path
+    minecraft: MinecraftSettings
     metadata: SettingsMetadata
 
 
@@ -71,10 +78,13 @@ def default_config_data() -> dict:
             "server_id": "default",
         },
         "paths": {
-            "data_root": "D:/MineOps",
+            "data_root": "D:\\MineOps",
             "metadata_root": "metadata",
             "backups_root": "backups",
-            "logs_root": "logs",
+            "app_logs_root": "logs",
+        },
+        "minecraft": {
+            "server_logs_root": "Z:\\gravestone_26_1_2\\logs",
         },
     }
 
@@ -112,6 +122,7 @@ def find_config_file() -> tuple[Path, str, bool]:
     env_config_dir = os.environ.get("MINEOPS_CONFIG_DIR")
     if env_config_dir:
         folder = Path(env_config_dir).expanduser().resolve()
+
         for candidate in _candidate_config_files(folder):
             if candidate.exists():
                 return candidate, "MINEOPS_CONFIG_DIR", False
@@ -124,9 +135,13 @@ def find_config_file() -> tuple[Path, str, bool]:
             return candidate, runtime_source, False
 
     user_config_path = get_user_config_dir() / "config.yaml"
-    write_default_config(user_config_path)
 
-    return user_config_path, "default user config", True
+    defaults_created = not user_config_path.exists()
+
+    if defaults_created:
+        write_default_config(user_config_path)
+
+    return user_config_path, "default user config", defaults_created
 
 
 def load_config_file(config_path: Path) -> dict:
@@ -164,13 +179,28 @@ def load_settings() -> Settings:
 
     mineops = data.get("mineops", {})
     paths = data.get("paths", {})
+    minecraft = data.get("minecraft", {})
 
     server_id = str(mineops.get("server_id", "default"))
 
     data_root = Path(str(paths.get("data_root", "D:/MineOps"))).expanduser()
     metadata_root = _resolve_path(data_root, str(paths.get("metadata_root", "metadata")))
     backups_root = _resolve_path(data_root, str(paths.get("backups_root", "backups")))
-    logs_root = _resolve_path(data_root, str(paths.get("logs_root", "logs")))
+    
+    app_logs_root = _resolve_path(data_root, str(paths.get("app_logs_root", "logs")))
+    
+    server_logs_root = Path(
+        str(
+            minecraft.get(
+                "server_logs_root",
+                "logs",
+            )
+        )
+    ).expanduser()
+    
+    minecraft_settings = MinecraftSettings(
+        server_logs_root=server_logs_root, 
+    )
 
     metadata = SettingsMetadata(
         config_path=config_path,
@@ -183,6 +213,7 @@ def load_settings() -> Settings:
         data_root=data_root,
         metadata_root=metadata_root,
         backups_root=backups_root,
-        logs_root=logs_root,
+        logs_root=app_logs_root,
+        minecraft = minecraft_settings,
         metadata=metadata,
-    )
+        )
