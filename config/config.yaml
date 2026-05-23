@@ -1,0 +1,21 @@
+app:
+name: MineOps
+environment: dev
+
+paths:
+minecraft_drive: M:
+backup_drive: B:
+exports_root: D:/MineOps/exports
+logs_root: D:/MineOps/logs
+
+defaults:
+server: survival
+
+servers:
+survival:
+server_id: survival
+world_path: M:/Servers/Survival/world
+backup_path: B:/MinecraftBackups/Survival
+rcon_host: 192.168.1.50
+rcon_port: 25575
+rcon_password: change-me

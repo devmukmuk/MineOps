@@ -1,0 +1,7 @@
+typer[all]
+rich
+pyyaml
+pytest
+pyinstaller
+pydantic
+mcrcon
