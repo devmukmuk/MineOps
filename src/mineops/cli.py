@@ -1,37 +1,46 @@
-from pathlib import Path
+"""MineOps command-line interface."""
+
+from __future__ import annotations
 
 import typer
 from rich.console import Console
-from rich.table import Table
 
-from mineops import __version__
+from mineops.config import load_settings
 
 app = typer.Typer(
-    help="MineOps - Minecraft utility scripts and tools."
+    help="MineOps command-line tools.",
+    invoke_without_command=True,
 )
 
 console = Console()
 
 
+@app.callback()
+def main(ctx: typer.Context) -> None:
+    """Run MineOps."""
+
+    if ctx.invoked_subcommand is None:
+        about()
+
+
 @app.command()
 def about() -> None:
-    """
-    Show MineOps application information.
-    """
+    """Print MineOps environment details."""
 
-    project_root = Path.cwd()
+    settings = load_settings()
 
-    table = Table(title="MineOps")
+    console.print("[bold]MineOps[/bold]")
+    console.print(f"Server ID: {settings.server_id}")
+    console.print()
 
-    table.add_column("Setting", style="cyan")
-    table.add_column("Value", style="green")
+    console.print("[bold]Config[/bold]")
+    console.print(f"Path: {settings.metadata.config_path}")
+    console.print(f"Source: {settings.metadata.config_source}")
+    console.print(f"Defaults Created: {settings.metadata.defaults_created}")
+    console.print()
 
-    table.add_row("Version", __version__)
-    table.add_row("Project Root", str(project_root))
-    table.add_row("Python Package", "mineops")
-
-    console.print(table)
-
-
-if __name__ == "__main__":
-    app()
+    console.print("[bold]Resolved Paths[/bold]")
+    console.print(f"Data Root: {settings.data_root}")
+    console.print(f"Metadata Root: {settings.metadata_root}")
+    console.print(f"Backups Root: {settings.backups_root}")
+    console.print(f"Logs Root: {settings.logs_root}")

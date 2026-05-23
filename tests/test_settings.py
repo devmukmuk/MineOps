@@ -1,9 +1,11 @@
-from mineops.settings import load_settings
+"""Tests for MineOps settings."""
+
+from mineops.config import load_settings
+
 
 def test_load_settings() -> None:
-settings = load_settings()
+    """Load default MineOps settings."""
 
-```
-assert "app" in settings
-```
+    settings = load_settings()
 
+    assert settings.server_id == "default"
