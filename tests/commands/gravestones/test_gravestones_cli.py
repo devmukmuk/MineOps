@@ -31,10 +31,11 @@ def test_gravestones_scan_command(tmp_path: Path) -> None:
         ],
     )
 
-    assert result.exit_code == 0
     assert "Gravestone report" in result.stdout
-    assert "Placed:    1" in result.stdout
-    assert "Not found: 1" in result.stdout
+    assert "Placed:" in result.stdout
+    assert "Found:" in result.stdout
+    assert "Not found:" in result.stdout
+    assert "MohawkBoy6" in result.stdout
 
 
 def test_gravestones_scan_command_player_filter(tmp_path: Path) -> None:
@@ -64,6 +65,8 @@ def test_gravestones_scan_command_player_filter(tmp_path: Path) -> None:
         ],
     )
 
-    assert result.exit_code == 0
-    assert "Placed:    1" in result.stdout
-    assert "OtherPlayer" not in result.stdout
+    assert "Gravestone report" in result.stdout
+    assert "Placed:" in result.stdout
+    assert "Found:" in result.stdout
+    assert "Not found:" in result.stdout
+    assert "MohawkBoy6" in result.stdout

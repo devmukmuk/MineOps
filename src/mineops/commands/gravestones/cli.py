@@ -9,9 +9,13 @@ from rich.console import Console
 
 from mineops.config.settings import load_settings
 from mineops.services.gravestones.gravestone_service import GravestoneService
+from mineops.services.minecraft_paths import resolve_server_logs_path
 
 
-app = typer.Typer(help="Minecraft gravestone log tools.")
+app = typer.Typer(
+    help="Minecraft gravestone log tools.",
+    no_args_is_help=True,
+)
 
 console = Console()
 
@@ -24,7 +28,13 @@ def scan_command(
         file_okay=False,
         dir_okay=True,
         readable=True,
-        help="Folder containing Minecraft server logs. Uses config default when omitted.",
+        help="Folder containing Minecraft server logs. Uses config server logs when omitted.",
+    ),
+    server_id: str | None = typer.Option(
+        None,
+        "--server-id",
+        "-s",
+        help="Minecraft server id from config. Uses config default when omitted.",
     ),
     player: str | None = typer.Option(
         None,
@@ -33,20 +43,26 @@ def scan_command(
         help="Optional player filter.",
     ),
     not_found_only: bool = typer.Option(
-        False,
+        True,
         "--not-found-only",
         help="Only show gravestones that have not been found.",
     ),
 ) -> None:
     """Scan Minecraft logs for gravestones."""
+
     settings = load_settings()
 
-    resolved_server_log_folder = log_folder or settings.minecraft.server_logs_root
+    resolved_server_id = server_id or settings.minecraft.default_server_id
+    resolved_server_log_folder = log_folder or resolve_server_logs_path(
+        settings,
+        resolved_server_id,
+    )
 
-    if resolved_server_log_folder is None:
-        raise typer.BadParameter(
-            "log_folder is required when server_logs_root is not configured."
-        )
+    console.print()
+    console.print(
+        f"Server logs resolved at: "
+        f"{resolved_server_log_folder}"
+    )
 
     service = GravestoneService()
     result = service.scan_logs(
@@ -59,10 +75,11 @@ def scan_command(
     console.print()
     console.print(f"Gravestone report for [bold]{report_name}[/bold]")
     console.print("=" * 60)
+    console.print(f"Server ID:  {resolved_server_id}")
     console.print(f"Log folder: {resolved_server_log_folder}")
-    console.print(f"Placed:    {len(result.placed)}")
-    console.print(f"Found:     {len(result.found)}")
-    console.print(f"Not found: {len(result.missing)}")
+    console.print(f"Placed:     {len(result.placed)}")
+    console.print(f"Found:      {len(result.found)}")
+    console.print(f"Not found:  {len(result.missing)}")
 
     if result.warnings:
         console.print()

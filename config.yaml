@@ -1,0 +1,17 @@
+mineops:
+  server_id: default
+  default_include_inactive: false
+paths:
+  data_root: D:\MineOps
+minecraft:
+  drive_letter: Z
+  servers_root: Z:\
+  default_server_id: gravestone_26_1_2
+  servers:
+    gravestone_26_1_2:
+      name: Gravestone 26.1.2
+      status: active
+      folder: gravestone_26_1_2
+      world_folder: world
+      logs_folder: logs
+
