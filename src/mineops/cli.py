@@ -8,6 +8,8 @@ from rich.console import Console
 from mineops.config import load_settings
 
 from mineops.commands.gravestones.cli import app as gravestones_app
+from mineops.commands.users.cli import app as users_app
+
 
 from mineops.services.minecraft_paths import (
     iter_servers,
@@ -26,6 +28,8 @@ app.add_typer(
     gravestones_app,
     name="gravestones",
 )
+
+app.add_typer(users_app, name="users")
 
 console = Console()
 

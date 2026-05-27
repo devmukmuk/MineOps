@@ -14,4 +14,9 @@ minecraft:
       folder: gravestone_26_1_2
       world_folder: world
       logs_folder: logs
-
+    arbor_1_21_10:
+      name: Arbor 1.21.10
+      status: inactive
+      folder: arbor_1_21_10
+      world_folder: world
+      logs_folder: logs
