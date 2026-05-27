@@ -26,7 +26,10 @@ class SettingsMetadata:
 class MinecraftSettings:
     """Minecraft-specific settings."""
 
-    server_logs_root: Path
+    drive_letter: str
+    servers_root: Path
+    default_server_id: str
+    servers: dict
 
 @dataclass(frozen=True)
 class Settings:
@@ -57,7 +60,7 @@ def get_runtime_dir() -> Path:
     if is_frozen_app():
         return Path(sys.executable).resolve().parent
 
-    return Path(__file__).resolve().parents[2]
+    return Path(__file__).resolve().parents[3]
 
 
 def get_user_config_dir() -> Path:
@@ -76,15 +79,31 @@ def default_config_data() -> dict:
     return {
         "mineops": {
             "server_id": "default",
+            "default_include_inactive": False,
         },
         "paths": {
             "data_root": "D:\\MineOps",
-            "metadata_root": "metadata",
-            "backups_root": "backups",
-            "app_logs_root": "logs",
         },
         "minecraft": {
-            "server_logs_root": "Z:\\gravestone_26_1_2\\logs",
+            "drive_letter": "Z",
+            "servers_root": "Z:\\",
+            "default_server_id": "gravestone_26_1_2",
+            "servers": {
+                "gravestone_26_1_2": {
+                    "name": "Gravestone 26.1.2",
+                    "status": "active",
+                    "folder": "gravestone_26_1_2",
+                    "world_folder": "world",
+                    "logs_folder": "logs",
+                },
+                "arbor_1_21_10": {
+                    "name": "Arbor 1.21.10",
+                    "status": "inactive",
+                    "folder": "arbor_1_21_10",
+                    "world_folder": "world",
+                    "logs_folder": "logs",
+                },
+            },
         },
     }
 
@@ -186,20 +205,16 @@ def load_settings() -> Settings:
     data_root = Path(str(paths.get("data_root", "D:/MineOps"))).expanduser()
     metadata_root = _resolve_path(data_root, str(paths.get("metadata_root", "metadata")))
     backups_root = _resolve_path(data_root, str(paths.get("backups_root", "backups")))
-    
+
     app_logs_root = _resolve_path(data_root, str(paths.get("app_logs_root", "logs")))
-    
-    server_logs_root = Path(
-        str(
-            minecraft.get(
-                "server_logs_root",
-                "logs",
-            )
-        )
-    ).expanduser()
-    
+
     minecraft_settings = MinecraftSettings(
-        server_logs_root=server_logs_root, 
+        drive_letter=str(minecraft.get("drive_letter", "Z")),
+        servers_root=Path(str(minecraft.get("servers_root", "Z:\\"))).expanduser(),
+        default_server_id=str(
+            minecraft.get("default_server_id", "gravestone_26_1_2")
+        ),
+        servers=dict(minecraft.get("servers", {})),
     )
 
     metadata = SettingsMetadata(

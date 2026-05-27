@@ -9,6 +9,13 @@ from mineops.config import load_settings
 
 from mineops.commands.gravestones.cli import app as gravestones_app
 
+from mineops.services.minecraft_paths import (
+    iter_servers,
+    resolve_server_logs_path,
+    resolve_server_root,
+    resolve_world_path,
+)
+
 
 app = typer.Typer(
     help="MineOps command-line tools.",
@@ -44,7 +51,10 @@ def about() -> None:
     console.print("[bold]Config[/bold]")
     console.print(f"Path: {settings.metadata.config_path}")
     console.print(f"Source: {settings.metadata.config_source}")
-    console.print(f"Defaults Created: {settings.metadata.defaults_created}")
+    console.print(
+        f"Defaults Created: "
+        f"{settings.metadata.defaults_created}"
+    )
     console.print()
 
     console.print("[bold]Resolved Paths[/bold]")
@@ -53,6 +63,74 @@ def about() -> None:
     console.print(f"Backups Root: {settings.backups_root}")
     console.print(f"Logs Root: {settings.logs_root}")
     console.print()
-    
+
     console.print("[bold]Minecraft[/bold]")
-    console.print(f"Server Logs Root: {settings.minecraft.server_logs_root}")
+    console.print(
+        f"Servers Root: "
+        f"{settings.minecraft.servers_root}"
+    )
+    console.print(
+        f"Default Server: "
+        f"{settings.minecraft.default_server_id}"
+    )
+    console.print()
+
+    active_servers = iter_servers(
+        settings,
+        include_active=True,
+        include_inactive=False,
+    )
+
+    inactive_servers = iter_servers(
+        settings,
+        include_active=False,
+        include_inactive=True,
+    )
+
+    console.print("[bold]Active Servers[/bold]")
+
+    if active_servers:
+        for server_id, server in active_servers:
+            console.print(f"- {server_id}")
+            console.print(
+                f"  Name: {server['name']}"
+            )
+            console.print(
+                f"  Root: "
+                f"{resolve_server_root(settings, server_id)}"
+            )
+            console.print(
+                f"  World: "
+                f"{resolve_world_path(settings, server_id)}"
+            )
+            console.print(
+                f"  Logs: "
+                f"{resolve_server_logs_path(settings, server_id)}"
+            )
+    else:
+        console.print("- None")
+
+    console.print()
+
+    console.print("[bold]Inactive Servers[/bold]")
+
+    if inactive_servers:
+        for server_id, server in inactive_servers:
+            console.print(f"- {server_id}")
+            console.print(
+                f"  Name: {server['name']}"
+            )
+            console.print(
+                f"  Root: "
+                f"{resolve_server_root(settings, server_id)}"
+            )
+            console.print(
+                f"  World: "
+                f"{resolve_world_path(settings, server_id)}"
+            )
+            console.print(
+                f"  Logs: "
+                f"{resolve_server_logs_path(settings, server_id)}"
+            )
+    else:
+        console.print("- None")
